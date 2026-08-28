@@ -511,7 +511,7 @@ function renderTabScore40(panel, a, id) {
       h('td', {}, numInput)
     ]));
   });
-  panel.appendChild(table);
+  panel.appendChild(h('div', { class: 'table-scroll' }, table));
 
   panel.appendChild(h('div', { class: 'score-total-box' }, [
     h('span', {}, 'SCORE SUR 40 :'), totalValueEl,
@@ -612,7 +612,7 @@ function renderTabQualification(panel, a, id) {
   table.appendChild(h('tr', { class: 'total-row' }, [
     h('td', {}, ''), h('td', {}, 'TOTAUX'), h('td', {}, ''), h('td', {}, totalOrangeEl), h('td', {}, totalRoseEl)
   ]));
-  panel.appendChild(table);
+  panel.appendChild(h('div', { class: 'table-scroll' }, table));
   refreshTotaux();
 
   panel.appendChild(suggestionBox);
@@ -833,7 +833,7 @@ function renderReperes(container) {
       h('td', {}, REFERENTIEL_COULEURS.ROSE[i])
     ]));
   });
-  container.appendChild(table);
+  container.appendChild(h('div', { class: 'ref-table-wrap' }, table));
 
   container.appendChild(h('div', { class: 'rule-box' },
     "Règle de bascule : si le client est connu ET présente plus de 50 % de chance de réussite, OU s'il existe un contrat-cadre / maintenance en cours → CLIENT VERT. Sinon, la grille de qualification détermine l'orientation Orange (Must Win) ou Rose (Prospect à transformer). Un litige actif est éliminatoire et impose ROSE quel que soit le score."
