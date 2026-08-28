@@ -138,8 +138,20 @@ const Store = (() => {
     return { affaires: [], planAction: [] };
   }
 
+  let persistFailed = false;
+
   function persist() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.error('Erreur écriture localStorage', e);
+      if (!persistFailed) {
+        persistFailed = true;
+        if (typeof showToast === 'function') {
+          showToast('⚠ Stockage indisponible : vos modifications ne seront pas sauvegardées après fermeture de la page.');
+        }
+      }
+    }
   }
 
   return {
