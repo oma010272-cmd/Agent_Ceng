@@ -195,5 +195,6 @@ function exportAffaireToXlsx(a) {
 
   const safe = (s) => (s || 'affaire').toString().replace(/[\\/:*?"<>|]/g, '_').slice(0, 60);
   const filename = `${safe(a.identite.client)}_${safe(a.identite.reference)}.xlsx`;
-  XLSX.writeFile(wb, filename);
+  const arrayBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  saveFile(filename, arrayBuffer, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 }

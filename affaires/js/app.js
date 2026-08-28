@@ -31,6 +31,34 @@ function showToast(msg) {
   showToast._t = setTimeout(() => { t.hidden = true; }, 2200);
 }
 
+/**
+ * Enregistre un fichier généré côté client. Utilise la capacité "downloads"
+ * de l'hôte Artifact quand elle est disponible (le clic-sur-lien classique y
+ * est bloqué) ; sinon retombe sur le téléchargement navigateur habituel
+ * (fichier ouvert en local, GitHub Pages, etc.).
+ */
+async function saveFile(filename, data, mime) {
+  let downloads = null;
+  if (window.claude && typeof window.claude.use === 'function') {
+    try { downloads = await window.claude.use('downloads'); } catch (e) { downloads = null; }
+  }
+  if (downloads) {
+    try {
+      await downloads.save({ filename, data });
+      showToast(`« ${filename} » enregistré.`);
+      return;
+    } catch (err) {
+      if (err && err.code === 'declined') return;
+      console.warn('downloads.save a échoué, tentative de téléchargement classique.', err);
+    }
+  }
+  const blob = data instanceof Blob ? data : new Blob([data], { type: mime || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = h('a', { href: url, download: filename });
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function fmtMoney(v) {
   const n = Number(v);
   if (v === '' || v === null || v === undefined || isNaN(n)) return '';
@@ -136,12 +164,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function bindGlobalActions() {
   document.getElementById('btn-export').addEventListener('click', () => {
-    const blob = new Blob([Store.exportJSON()], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = h('a', { href: url, download: `agent-ceng-affaires-${todayISODate()}.json` });
-    document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
-    showToast('Export JSON généré.');
+    saveFile(`agent-ceng-affaires-${todayISODate()}.json`, Store.exportJSON(), 'application/json');
   });
   document.getElementById('btn-import').addEventListener('click', () => {
     document.getElementById('file-import').click();
